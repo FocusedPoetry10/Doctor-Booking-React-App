@@ -29,7 +29,7 @@ export const authenticate = async (req, res, next) => {
             return res.status(401).json({ message: 'Token is Expired' });
         }
 
-        return res.status(401).json({sucess: false, message: 'Invalid token'});
+        return res.status(401).json({success: false, message: 'Invalid token'});
     }
 };
 
@@ -50,7 +50,7 @@ export const restrict = roles => async(req,res,next) => {
     }
 
     if (!roles.includes(user.role)){
-        return res.status(401).json({sucess: false, message: "You're not authorized"});
+        return res.status(401).json({success: false, message: "You're not authorized"});
     }
 
     next();

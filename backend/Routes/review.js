@@ -5,7 +5,7 @@ import {
 } from "../Controllers/reviewController.js";
 import { authenticate, restrict } from './../auth/verifyToken.js';
 
-const router = express.Router({ mergerParams: true });
+const router = express.Router({ mergeParams: true });
 
 // /doctor/doctorId/reviews
 

@@ -1,7 +1,8 @@
 import Doctor from "../models/DoctorSchema.js";
 
+// Update Doctor Details
 export const updateDoctor = async (req, res) => {
-    const id = req.params.id;
+    const { id } = req.params;
 
     try {
         const updatedDoctor = await Doctor.findByIdAndUpdate(
@@ -9,6 +10,13 @@ export const updateDoctor = async (req, res) => {
             { $set: req.body },
             { new: true }
         );
+
+        if (!updatedDoctor) {
+            return res.status(404).json({
+                success: false,
+                message: "Doctor not found",
+            });
+        }
 
         res.status(200).json({
             success: true,
@@ -19,15 +27,24 @@ export const updateDoctor = async (req, res) => {
         res.status(500).json({
             success: false,
             message: "Failed to update",
+            error: err.message, // Include error message for debugging
         });
     }
 };
 
+// Delete Doctor
 export const deleteDoctor = async (req, res) => {
-    const id = req.params.id;
+    const { id } = req.params;
 
     try {
-        await Doctor.findByIdAndDelete(id);
+        const deletedDoctor = await Doctor.findByIdAndDelete(id);
+
+        if (!deletedDoctor) {
+            return res.status(404).json({
+                success: false,
+                message: "Doctor not found",
+            });
+        }
 
         res.status(200).json({
             success: true,
@@ -37,31 +54,42 @@ export const deleteDoctor = async (req, res) => {
         res.status(500).json({
             success: false,
             message: "Failed to delete",
+            error: err.message, // Include error message for debugging
         });
     }
 };
 
+// Get Single Doctor
 export const getSingleDoctor = async (req, res) => {
-    const id = req.params.id;
+    const { id } = req.params;
 
     try {
         const doctor = await Doctor.findById(id)
-        .populate("reviews")
-        .select("-password");
+            .populate("reviews")
+            .select("-password");
+
+        if (!doctor) {
+            return res.status(404).json({
+                success: false,
+                message: "Doctor not found",
+            });
+        }
 
         res.status(200).json({
             success: true,
-            message: "User Found",
+            message: "Doctor found",
             data: doctor,
         });
     } catch (err) {
-        res.status(404).json({
+        res.status(500).json({
             success: false,
-            message: "No user found",
+            message: "Error fetching doctor",
+            error: err.message, // Include error message for debugging
         });
     }
 };
 
+// Get All Doctors (with optional search query)
 export const getAllDoctor = async (req, res) => {
     try {
         const { query } = req.query;
@@ -76,20 +104,19 @@ export const getAllDoctor = async (req, res) => {
                 ],
             }).select("-password");
         } else {
-            doctors = await Doctor.find({}).select(
-                "-password"
-            );
+            doctors = await Doctor.find({ isApproved: "approved" }).select("-password");
         }
 
         res.status(200).json({
             success: true,
-            message: "Users Found",
+            message: "Doctors found",
             data: doctors,
         });
     } catch (err) {
-        res.status(404).json({
+        res.status(500).json({
             success: false,
-            message: "Not found",
+            message: "Error fetching doctors",
+            error: err.message, // Include error message for debugging
         });
     }
 };
