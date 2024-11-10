@@ -1,50 +1,45 @@
+import Review from '../models/ReviewSchema.js';
+import Doctor from '../models/DoctorSchema.js';
 
-import Review from '../models/ReviewSchema.js'
-import Doctor from '../models/DoctorSchema.js'
-
-// get all reviews
-export const getAllReviews = async (req, res)=> {
-
+// Get all reviews
+export const getAllReviews = async (req, res) => {
     try {
         const reviews = await Review.find({});
-
-        res
-            .status(200)
-            .json({ success: true, message: "Successful", data: reviews });
+        
+        res.status(200).json({ success: true, message: "Successful", data: reviews });
     } catch (err) {
-        res
-            .status(404)
-            .json({ success: false,  message: "Not Found" })
+        console.error('Get All Reviews Error:', err);
+        res.status(404).json({ success: false, message: "Not found" });
     }
 };
 
-
-// create review
-export const createReview = async(req,res) => {
-
-    if (!req.body.doctor) req.body.doctor = req.params.doctorId
-    if (!req.body.user) req.body.user = req.userId
-
-    const newReview = new Review ( req.body )
-
+// Create review
+export const createReview = async (req, res) => {
     try {
+        // Check if doctor ID and user ID are present
+        const doctorId = req.body.doctor || req.params.doctorId;
+        const userId = req.body.user || req.userId;
 
-        const savedReviews = await newReview.save()
+        if (!doctorId || !userId) {
+            return res.status(400).json({ success: false, message: "Doctor and User IDs are required" });
+        }
 
-        await Doctor.findByIdAndUpdate ( req.body.doctor, {
-            $push: {reviews: savedReviews._id},
+        const newReview = new Review({
+            ...req.body,
+            doctor: doctorId,
+            user: userId,
         });
 
-        res
-            .status(200)
-            .json({ success: true, message: "Review Submitted", data: savedReviews });
+        // Save review and update doctor's reviews
+        const savedReview = await newReview.save();
 
+        await Doctor.findByIdAndUpdate(doctorId, {
+            $push: { reviews: savedReview._id },
+        });
+
+        res.status(200).json({ success: true, message: "Review Submitted", data: savedReview });
     } catch (err) {
-
-        res
-            .status(500)
-            .json({ success: false, message: err.message });
-
+        console.error('Create Review Error:', err);
+        res.status(500).json({ success: false, message: "Failed to submit review" });
     }
-
 };

@@ -1,14 +1,17 @@
 import express from "express";
-import { getAllReviews, createReview } from "../Controllers/reviewController.js";
+import { 
+    getAllReviews, 
+    createReview 
+} from "../Controllers/reviewController.js";
 import { authenticate, restrict } from './../auth/verifyToken.js';
 
-const router = express.Router({ mergerParams: true });
+const router = express.Router({ mergeParams: true });
 
 // /doctor/doctorId/reviews
 
 router
     .route('/')
-    .get(getAllReviews)
-    .post(authenticate,restrict(['patient']), createReview);
+    .get(getAllReviews) // Get all reviews for a doctor
+    .post(authenticate, restrict(['patient']), createReview); // Only authenticated patients can create reviews
 
 export default router;
