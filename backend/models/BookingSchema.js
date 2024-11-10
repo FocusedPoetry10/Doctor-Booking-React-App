@@ -1,31 +1,30 @@
 import mongoose from "mongoose";
 
-const bookingSchema = new mongoose.Schema (
+const bookingSchema = new mongoose.Schema(
     {
         doctor: {
             type: mongoose.Types.ObjectId,
             ref: "Doctor",
             required: true,
         },
-
         user: {
             type: mongoose.Types.ObjectId,
             ref: "User",
             required: true,
         },
-
-        ticketPrice: {type: String, required: true},
+        ticketPrice: {
+            type: Number,  // Changed to Number for numeric value
+            required: true,
+        },
         appointmentDate: {
             type: Date,
             required: true,
         },
-
-        statues: {
+        status: {  // Corrected typo from "statues" to "status"
             type: String,
             enum: ["pending", "approved", "cancelled"],
             default: "pending",
         },
-
         isPaid: {
             type: Boolean,
             default: true,

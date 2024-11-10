@@ -1,4 +1,3 @@
-
 import express from "express";
 import { 
     updateDoctor, 
@@ -12,12 +11,13 @@ import reviewRouter from './review.js';
 
 const router = express.Router();
 
-//  nested route
+// Nested route for reviews
 router.use("/:doctorId/reviews", reviewRouter);
 
-router.get("/:id", getSingleDoctor);
-router.get("/", getAllDoctor);
-router.put("/:id", authenticate, restrict(["doctor"]), updateDoctor);
-router.delete("/:id", authenticate, restrict(["doctor"]), deleteDoctor);
+// Routes
+router.get("/:id", getSingleDoctor); // Get a single doctor
+router.get("/", getAllDoctor); // Get all doctors
+router.put("/:id", authenticate, restrict(["doctor"]), updateDoctor); // Update doctor (only for doctors)
+router.delete("/:id", authenticate, restrict(["doctor"]), deleteDoctor); // Delete doctor (only for doctors)
 
 export default router;

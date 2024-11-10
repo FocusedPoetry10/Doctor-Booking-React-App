@@ -1,8 +1,7 @@
 import Doctor from "../models/DoctorSchema.js";
 
-// Update Doctor Details
 export const updateDoctor = async (req, res) => {
-    const { id } = req.params;
+    const id = req.params.id;
 
     try {
         const updatedDoctor = await Doctor.findByIdAndUpdate(
@@ -12,10 +11,7 @@ export const updateDoctor = async (req, res) => {
         );
 
         if (!updatedDoctor) {
-            return res.status(404).json({
-                success: false,
-                message: "Doctor not found",
-            });
+            return res.status(404).json({ success: false, message: "Doctor not found" });
         }
 
         res.status(200).json({
@@ -24,26 +20,19 @@ export const updateDoctor = async (req, res) => {
             data: updatedDoctor,
         });
     } catch (err) {
-        res.status(500).json({
-            success: false,
-            message: "Failed to update",
-            error: err.message, // Include error message for debugging
-        });
+        console.error('Update Error:', err);
+        res.status(500).json({ success: false, message: "Failed to update" });
     }
 };
 
-// Delete Doctor
 export const deleteDoctor = async (req, res) => {
-    const { id } = req.params;
+    const id = req.params.id;
 
     try {
         const deletedDoctor = await Doctor.findByIdAndDelete(id);
 
         if (!deletedDoctor) {
-            return res.status(404).json({
-                success: false,
-                message: "Doctor not found",
-            });
+            return res.status(404).json({ success: false, message: "Doctor not found" });
         }
 
         res.status(200).json({
@@ -51,28 +40,19 @@ export const deleteDoctor = async (req, res) => {
             message: "Successfully deleted",
         });
     } catch (err) {
-        res.status(500).json({
-            success: false,
-            message: "Failed to delete",
-            error: err.message, // Include error message for debugging
-        });
+        console.error('Delete Error:', err);
+        res.status(500).json({ success: false, message: "Failed to delete" });
     }
 };
 
-// Get Single Doctor
 export const getSingleDoctor = async (req, res) => {
-    const { id } = req.params;
+    const id = req.params.id;
 
     try {
-        const doctor = await Doctor.findById(id)
-            .populate("reviews")
-            .select("-password");
+        const doctor = await Doctor.findById(id).select("-password");
 
         if (!doctor) {
-            return res.status(404).json({
-                success: false,
-                message: "Doctor not found",
-            });
+            return res.status(404).json({ success: false, message: "No Doctor found" });
         }
 
         res.status(200).json({
@@ -81,15 +61,11 @@ export const getSingleDoctor = async (req, res) => {
             data: doctor,
         });
     } catch (err) {
-        res.status(500).json({
-            success: false,
-            message: "Error fetching doctor",
-            error: err.message, // Include error message for debugging
-        });
+        console.error('Get Single Doctor Error:', err);
+        res.status(500).json({ success: false, message: "Failed to retrieve doctor" });
     }
 };
 
-// Get All Doctors (with optional search query)
 export const getAllDoctor = async (req, res) => {
     try {
         const { query } = req.query;
@@ -97,10 +73,10 @@ export const getAllDoctor = async (req, res) => {
 
         if (query) {
             doctors = await Doctor.find({
-                isApproved: "approved",
+                isApproved: 'approved', 
                 $or: [
                     { name: { $regex: query, $options: "i" } },
-                    { specialization: { $regex: query, $options: "i" } },
+                    { specialization: { $regex: query, $options: 'i' } },
                 ],
             }).select("-password");
         } else {
@@ -113,10 +89,10 @@ export const getAllDoctor = async (req, res) => {
             data: doctors,
         });
     } catch (err) {
+        console.error('Get All Doctors Error:', err);
         res.status(500).json({
             success: false,
-            message: "Error fetching doctors",
-            error: err.message, // Include error message for debugging
+            message: "Failed to retrieve doctors",
         });
     }
 };

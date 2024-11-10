@@ -11,7 +11,7 @@ const router = express.Router({ mergeParams: true });
 
 router
     .route('/')
-    .get(getAllReviews)
-    .post(authenticate,restrict(['patient']), createReview);
+    .get(getAllReviews) // Get all reviews for a doctor
+    .post(authenticate, restrict(['patient']), createReview); // Only authenticated patients can create reviews
 
 export default router;

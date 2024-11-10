@@ -16,6 +16,7 @@ export const updateUser = async (req, res) => {
             data: updatedUser,
         });
     } catch (err) {
+        console.error('Update User Error:', err);
         res.status(500).json({
             success: false,
             message: "Failed to update",
@@ -34,6 +35,7 @@ export const deleteUser = async (req, res) => {
             message: "Successfully deleted",
         });
     } catch (err) {
+        console.error('Delete User Error:', err);
         res.status(500).json({
             success: false,
             message: "Failed to delete",
@@ -47,12 +49,20 @@ export const getSingleUser = async (req, res) => {
     try {
         const user = await User.findById(id).select("-password");
 
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "No user found",
+            });
+        }
+
         res.status(200).json({
             success: true,
-            message: "User Found",
+            message: "User found",
             data: user,
         });
     } catch (err) {
+        console.error('Get Single User Error:', err);
         res.status(404).json({
             success: false,
             message: "No user found",
@@ -70,21 +80,19 @@ export const getAllUser = async (req, res) => {
                 isApproved: "approved",
                 $or: [
                     { name: { $regex: query, $options: "i" } },
-                    { specialization: { $regex: query, $options: "i" } },
                 ],
             }).select("-password");
         } else {
-            users = await User.find({}).select(
-                "-password"
-            );
+            users = await User.find({ isApproved: "approved" }).select("-password");
         }
 
         res.status(200).json({
             success: true,
-            message: "Users Found",
+            message: "Users found",
             data: users,
         });
     } catch (err) {
+        console.error('Get All Users Error:', err);
         res.status(404).json({
             success: false,
             message: "Not found",

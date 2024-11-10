@@ -1,49 +1,45 @@
-import Review from "../models/ReviewSchema.js";
-import Doctor from "../models/DoctorSchema.js";
+import Review from '../models/ReviewSchema.js';
+import Doctor from '../models/DoctorSchema.js';
 
 // Get all reviews
 export const getAllReviews = async (req, res) => {
     try {
         const reviews = await Review.find({});
-
-        res
-            .status(200)
-            .json({ success: true, message: "Successful", data: reviews });
-            
+        
+        res.status(200).json({ success: true, message: "Successful", data: reviews });
     } catch (err) {
-
-        res
-            .status(404)
-            .json({ success: false, message: "Not Found" });
-
+        console.error('Get All Reviews Error:', err);
+        res.status(404).json({ success: false, message: "Not found" });
     }
 };
 
 // Create review
 export const createReview = async (req, res) => {
-    // Set doctor and user IDs if they are not in the request body
-    if(!req.body.doctor) req.body.doctor = req.params.doctorId;
-    if(!req.body.user) req.body.user = req.userId;
-
-    // Create new review instance with request body data
-    const newReview = new Review(req.body);
-
     try {
-        // Save the review to the database
-        const savedReview = await newReview.save();
+        // Check if doctor ID and user ID are present
+        const doctorId = req.body.doctor || req.params.doctorId;
+        const userId = req.body.user || req.userId;
 
-        // Add the new review to the doctor's review list
-        await Doctor.findByIdAndUpdate(req.body.doctor, {
-            $push:{reviews: savedReview._id}
+        if (!doctorId || !userId) {
+            return res.status(400).json({ success: false, message: "Doctor and User IDs are required" });
+        }
+
+        const newReview = new Review({
+            ...req.body,
+            doctor: doctorId,
+            user: userId,
         });
 
-        res
-            .status(200)
-            .json({success:true, message:'Review submitted', data:savedReview})
+        // Save review and update doctor's reviews
+        const savedReview = await newReview.save();
 
+        await Doctor.findByIdAndUpdate(doctorId, {
+            $push: { reviews: savedReview._id },
+        });
+
+        res.status(200).json({ success: true, message: "Review Submitted", data: savedReview });
     } catch (err) {
-        res
-            .status(500)
-            .json({ success: false, message: err.message });
+        console.error('Create Review Error:', err);
+        res.status(500).json({ success: false, message: "Failed to submit review" });
     }
 };
