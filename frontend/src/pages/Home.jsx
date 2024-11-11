@@ -17,6 +17,7 @@ import ServiceList from "../Components/Services/ServiceList";
 import DoctorList from "../Components/Doctors/DoctorList";
 import DoctorCard from "../Components/Doctors/DoctorCard";
 import FaqList from "../Components/Faq/FaqList";
+import Testimonial from "../Components/Testimonial/Testimonial";
 
 
 const Home = () => {
@@ -303,12 +304,11 @@ const Home = () => {
         </p>
     </div>
 
+    <Testimonial/>
     </div>
 </section>
 
 {/* ====== testimonial end ======== */}
-
-
 
 
    </>
