@@ -1,4 +1,4 @@
-import React from "react";
+// import React from "react";
 
  import heroImg01 from "../assets/data/Images/hero-img01.png";
  import heroImg02 from "../assets/data/Images/hero-img02.png";
