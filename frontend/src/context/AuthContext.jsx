@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useReducer } from "react";
+import { createContext, useEffect, useReducer } from "react";
 
 const initialState = {
     user: localStorage.getItem('user') === undefined 
@@ -10,7 +10,7 @@ const initialState = {
 
 export const authContext = createContext(initialState);
 
-const authReducer = (state,action) => {
+const authReducer = (state , action) => {
 
     switch (action.type) {
         case 'LOGIN_START':
