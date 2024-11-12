@@ -1,20 +1,25 @@
 import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import signupImg from "../assets/data/Images/signup.gif";
 import avatar from "../assets/data/Images/doctor-img01.png";
-import { Link } from "react-router-dom";
+import uploadImageToCloudinary from "../../utils/uploadCloudinary";
+import { BASE_URL } from "../config";
+import { toast } from 'react-toastify';
+import HashLoader from 'react-spinners/HashLoader';
 
 const Signup = () => {
-
-    const[selectedFile, setSelectedFile] = useState(null)
-    const[previewURL, setPreviewURL] = useState("");
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [previewURL, setPreviewURL] = useState("");
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
-        name:'',
+        name: '',
         email: '',
         password: '',
-        photo:selectedFile,
-        gender:'',
-        role:'patient'
+        photo: "",
+        gender: '',
+        role: 'patient'
     });
 
     const handleInputChange = (e) => {
@@ -22,14 +27,49 @@ const Signup = () => {
     };
 
     const handleFileInputChange = async (event) => {
-        const file = event.target.files[0]
+        const file = event.target.files[0];
+        if (file) {
+            setSelectedFile(file);
+            setPreviewURL(URL.createObjectURL(file)); // Set preview URL
 
-        // later we will use Cloudinary to upload images
+            try {
+                const data = await uploadImageToCloudinary(file);
+                if (data?.secure_url) {
+                    setFormData({ ...formData, photo: data.secure_url }); // Update photo URL in formData
+                }
+            } catch (error) {
+                toast.error("Failed to upload image. Please try again.");
+            }
+        }
     };
 
-    const submitHandler = async event => {
-        event.preventDefault()
-    }
+    const submitHandler = async (event) => {
+        event.preventDefault();
+        setLoading(true);
+
+        try {
+            const res = await fetch(`${BASE_URL}/api/v1/auth/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const { message } = await res.json();
+
+            if (!res.ok) {
+                throw new Error(message);
+            }
+
+            setLoading(false);
+            toast.success(message);
+            navigate('/login');
+        } catch (err) {
+            toast.error(err.message);
+            setLoading(false);
+        }
+    };
 
     return (
         <section className="px-5 xl:px-0">
@@ -38,7 +78,7 @@ const Signup = () => {
                     {/* ====== img box ====== */}
                     <div className="hidden lg:block bg-primaryColor rounded-l-lg">
                         <figure className="rounded-l-lg">
-                            <img src={signupImg} alt="" className="w-full rounded-l-lg" />
+                            <img src={signupImg} alt="Signup" className="w-full rounded-l-lg" />
                         </figure>
                     </div>
 
@@ -49,6 +89,7 @@ const Signup = () => {
                         </h3>
 
                         <form onSubmit={submitHandler}>
+                            {/* Input fields for name, email, and password */}
                             <div className="mb-5">
                                 <input
                                     type="text"
@@ -56,11 +97,10 @@ const Signup = () => {
                                     name="name"
                                     value={formData.name}
                                     onChange={handleInputChange}
-                                    className="w-full pt-4 py-3 border-b border-solid border-[#0066ff61] focus:outline-none focus:border-b-primaryColor text-[16px] leading-7 text-headingColor placeholder:text-textColor cursor-pointer"
+                                    className="input-style"
                                     required
                                 />
                             </div>
-
                             <div className="mb-5">
                                 <input
                                     type="email"
@@ -68,11 +108,10 @@ const Signup = () => {
                                     name="email"
                                     value={formData.email}
                                     onChange={handleInputChange}
-                                    className="w-full pt-4 py-3 border-b border-solid border-[#0066ff61] focus:outline-none focus:border-b-primaryColor text-[16px] leading-7 text-headingColor placeholder:text-textColor cursor-pointer"
+                                    className="input-style"
                                     required
                                 />
                             </div>
-
                             <div className="mb-5">
                                 <input
                                     type="password"
@@ -80,36 +119,32 @@ const Signup = () => {
                                     name="password"
                                     value={formData.password}
                                     onChange={handleInputChange}
-                                    className="w-full pt-4 py-3 border-b border-solid border-[#0066ff61] focus:outline-none focus:border-b-primaryColor text-[16px] leading-7 text-headingColor placeholder:text-textColor cursor-pointer"
+                                    className="input-style"
                                     required
                                 />
                             </div>
 
+                            {/* Role and Gender selection */}
                             <div className="mb-5 flex items-center justify-between">
-                                <label
-                                    className="text-headingColor font-bold text-[16px] leading-7"
-                                >
-                                    Are you at:
+                                <label className="label-style">
+                                    Are you a:
                                     <select
                                         name="role"
                                         value={formData.role}
-                                    onChange={handleInputChange}
-                                        className="text-textColor font-semibold text-[15px] leading-7 px-4 py-3 focus: outline-none"
+                                        onChange={handleInputChange}
+                                        className="select-style"
                                     >
                                         <option value="patient">Patient</option>
                                         <option value="doctor">Doctor</option>
                                     </select>
                                 </label>
-
-                                <label
-                                    className="text-headingColor font-bold text-[16px] leading-7"
-                                >
+                                <label className="label-style">
                                     Gender:
                                     <select
                                         name="gender"
                                         value={formData.gender}
-                                    onChange={handleInputChange}
-                                        className="text-textColor font-semibold text-[15px] leading-7 px-4 py-3 focus: outline-none"
+                                        onChange={handleInputChange}
+                                        className="select-style"
                                     >
                                         <option value="">Select</option>
                                         <option value="male">Male</option>
@@ -119,48 +154,57 @@ const Signup = () => {
                                 </label>
                             </div>
 
+                            {/* Image Upload with Preview */}
                             <div className="mb-5 flex items-center gap-3">
-                                <figure className="w-[60px] h-[60px] rounded-full border-2 border-solid border-primaryColor flex items-center justify Center">
-                                    <img src={avatar} alt="" className="w-full rounded-full" />
-                                </figure>
-
+                                {selectedFile && (
+                                    <figure className="w-[60px] h-[60px] rounded-full border-2 border-primaryColor flex items-center justify-center">
+                                        <img 
+                                            src={previewURL} 
+                                            alt="Preview" 
+                                            className="w-full rounded-full" 
+                                        />
+                                    </figure>
+                                )}
                                 <div className="relative w-[130px] h-[50px]">
                                     <input
-                                        type= "file"
+                                        type="file"
                                         name="photo"
                                         id="customFile"
                                         onChange={handleFileInputChange}
                                         accept=".jpg, .png"
                                         className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
                                     />
-
-                                    <label 
-                                        htmlFor="customFile" 
-                                        className="absolute top-0 left-0 w-full h-full flex items-center px-[0.75rem] py-[0.375rem] text-[15px] leading-6 overflow-hidden bg-[#0066ff46] text-headingColor font-semibold rounded-lg truncate cursor-pointer"
+                                    <label
+                                        htmlFor="customFile"
+                                        className="absolute top-0 left-0 w-full h-full flex items-center px-3 py-2 bg-[#0066ff46] text-headingColor font-semibold rounded-lg cursor-pointer"
                                     >
                                         Upload Photo
                                     </label>
                                 </div>
                             </div>
 
+                            {/* Sign Up Button */}
                             <div className="mt-7">
-                        <button
-                            type="submit"
-                            className="w-full bg-primaryColor text-white text-[18px] leading-[30px] rounded-lg px-4 py-3"
-                        >
-                            Sign Up
-                        </button>
-                    </div>
+                                <button
+                                    disabled={loading}
+                                    type="submit"
+                                    className="w-full bg-primaryColor text-white text-[18px] leading-[30px] rounded-lg px-4 py-3"
+                                >
+                                    {loading ? (
+                                        <HashLoader size={35} color="#ffffff" />
+                                    ) : (
+                                        "Sign Up"
+                                    )}
+                                </button>
+                            </div>
 
-                    <p className="mt-5 text-textColor text-center">
-                        Already have an account?
-                        <Link 
-                            to="/login" 
-                            className="text-primaryColor font-medium ml-1"
-                        >
-                            Login
-                        </Link>
-                    </p>
+                            {/* Link to Login */}
+                            <p className="mt-5 text-textColor text-center">
+                                Already have an account?
+                                <Link to="/login" className="text-primaryColor font-medium ml-1">
+                                    Login
+                                </Link>
+                            </p>
                         </form>
                     </div>
                 </div>
