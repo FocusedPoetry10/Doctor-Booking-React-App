@@ -37,8 +37,8 @@ const Signup = () => {
                 if (data?.secure_url) {
                     setFormData({ ...formData, photo: data.secure_url }); // Update photo URL in formData
                 }
-            } catch (error) {
-                toast.error("Failed to upload image. Please try again.");
+            } catch {
+                toast.err("Failed to upload image. Please try again.");
             }
         }
     };
