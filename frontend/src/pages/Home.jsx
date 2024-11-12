@@ -304,7 +304,7 @@ const Home = () => {
         </p>
     </div>
 
-    <Testimonial/>
+    <Testimonial />
     </div>
 </section>
 
