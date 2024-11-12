@@ -8,6 +8,7 @@ import userRoute from "./Routes/user.js";
 import doctorRoute from "./Routes/doctor.js";
 import reviewRoute from "./Routes/review.js";
 
+// Load environment variables
 dotenv.config();
 
 const app = express();
@@ -15,20 +16,20 @@ const port = process.env.PORT || 8000;
 
 // CORS Configuration
 const corsOptions = {
-    origin: process.env.CLIENT_URL || "http://yourfrontenddomain.com", // Update with your actual frontend domain
+    origin: process.env.CLIENT_URL || "http://localhost:5173", // URL of your React frontend
+    methods: ["GET", "POST", "PUT", "DELETE"], // Allowed HTTP methods
+    credentials: true // Allow cookies if needed
 };
-
-// API Health Check
-app.get('/', (req,res) => {
-    res.send("API is working");
-});
 
 // MongoDB connection setup
 mongoose.set('strictQuery', false);
 
 const connectDB = async () => {
     try {
-        await mongoose.connect(process.env.MONGO_URL);
+        await mongoose.connect(process.env.MONGO_URL, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        });
         console.log('MongoDB database is connected');
     } catch (err) {
         console.error('MongoDB database connection failed:', err);
@@ -40,6 +41,11 @@ const connectDB = async () => {
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors(corsOptions));
+
+// API Health Check
+app.get('/', (req, res) => {
+    res.send("API is working");
+});
 
 // Routes
 app.use('/api/v1/auth', authRoute);    // domain/api/v1/auth/register
