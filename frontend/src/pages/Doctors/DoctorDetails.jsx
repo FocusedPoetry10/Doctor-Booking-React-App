@@ -3,6 +3,7 @@ import doctorImg from "../../assets/data/Images/doctor-img02.png";
 import starIcon from '../../assets/data/Images/Star.png';
 import DoctorAbout from "./DoctorAbout";
 import Feedback from "./Feedback";
+import SidePanel from "./SidePanel";
 
 const DoctorDetails = () => {
   const [tab, setTab] = useState("about");  // Added state to manage active tab
