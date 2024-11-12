@@ -67,6 +67,7 @@ const DoctorDetails = () => {
           </div>
 
           <div>
+          <SidePanel />
             {/* Placeholder for additional content, if any */}
           </div>
         </div>
