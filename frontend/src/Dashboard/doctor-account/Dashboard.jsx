@@ -1,7 +1,7 @@
 import React from "react";
 import Loader from "../../components/Loader/Loading"
 import Error from "../../components/Error/Error"
-import useGetProfile from "../..hooks/useFetchData"
+import useGetProfile from "../../hooks/useFetchData"
 import { BASE_URL } from "../../config";
 import Tabs from "./Tabs";
 
