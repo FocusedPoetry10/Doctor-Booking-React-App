@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import { toast } from "react-toastify";
-import userImg from '../../assets/data/Images/doctor-img01.png';
+
 
 import MyBookings from "./MyBookings";
 import Profile from "./Profile";
@@ -23,9 +23,6 @@ const MyAccount = () => {
     } = useGetProfile(`${BASE_URL}/api/v1/users/profile/me`);
 
     console.log(userData, "userdata");
-
-    // Destructuring userData to prevent repeated checks and make rendering cleaner
-    const { name = "User", email = "example@gmail.com", bloodType = "o-" } = userData || {};
 
     useEffect(() => {
         if (error) {
@@ -51,7 +48,7 @@ const MyAccount = () => {
                         <div className="flex items-center justify-center">
                             <figure className="w-[100px] h-[100px] rounded-full border-2 border-solid border-primaryColor">
                                 <img 
-                                    src={userImg} 
+                                    src={userData.photo} 
                                     alt="User Profile" 
                                     className="w-full h-full rounded-full" 
                                 />
@@ -60,15 +57,15 @@ const MyAccount = () => {
 
                         <div className="text-center mt-4">
                             <h3 className="text-[18px] leading-[30px] text-headingColor font-bold">
-                                {name}
+                                {userData.name}
                             </h3>
                             <p className="text-textColor text-[15px] leading-6 font-medium">
-                                {email}
+                                {userData.email}
                             </p>
                             <p className="text-textColor text-[15px] leading-6 font-medium">
                                 Blood Type: 
                                 <span className="ml-2 text-headingColor text-[22px] leading-8">
-                                    {bloodType}
+                                    {userData.bloodType}
                                 </span>
                             </p>
                         </div>
@@ -105,7 +102,7 @@ const MyAccount = () => {
                         {loading && <div>Loading profile...</div>}
                         {!loading && error && <div>Error: {error}</div>}
                         {tab === 'bookings' && <MyBookings />}
-                        {tab === 'settings' && <Profile />}
+                        {tab === 'settings' && <Profile user={userData} />}
                     </div>
                 </div>
                 )}
