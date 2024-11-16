@@ -148,4 +148,4 @@ export const getMyAppointments = async(req, res) => {
             .status(500)
             .json({ success: false, message: "Something went wrong, cannot get" });
     }
-}
+};

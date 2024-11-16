@@ -102,10 +102,10 @@ export const getAllDoctor = async (req, res) => {
 
 
 export const getDoctorProfile = async (req, res) => {
-    const userId = req.userId
+    const doctorId = req.userId
 
     try {
-        const doctor = await Doctor.findById(doctorId)
+        const doctor = await Doctor.findById(doctorId);
 
         if(!doctor) {
             return res

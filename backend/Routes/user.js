@@ -3,7 +3,8 @@ import {
     updateUser, 
     deleteUser, 
     getAllUser, 
-    getSingleUser, 
+    getSingleUser,
+    getUserProfile, 
     getMyAppointments
 } from "../Controllers/userController.js";
 
@@ -25,11 +26,6 @@ router.delete('/:id', authenticate, restrict(['patient']), deleteUser);
 
 router.get("/profile/me", authenticate, restrict(["patient"]), getUserProfile);
 
-router.get(
-    "appointments/my-appointments",
-    authenticate,
-    restrict(["patient"]),
-    getMyAppointments
-);
+router.get("appointments/my-appointments", authenticate, restrict(["patient"]), getMyAppointments);
 
 export default router;

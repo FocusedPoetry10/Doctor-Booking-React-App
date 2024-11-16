@@ -1,36 +1,38 @@
-import { createContext, useEffect, useReducer } from "react";
+import { createContext, useContext, useReducer, useEffect } from "react";
 
+// Initial state
+const user = localStorage.getItem('user');
 const initialState = {
-    user: localStorage.getItem('user') === undefined 
-    ? JSON.parse(localStorage.getItem('user'))
-    : null,
+    user: user ? JSON.parse(user) : null,
     role: localStorage.getItem('role') || null,
-    token: localStorage.getItem("token") || null,
+    token: localStorage.getItem('token') || null,
 };
 
-export const authContext = createContext(initialState);
+// Create Context
+export const AuthContext = createContext(initialState);
 
-const authReducer = (state , action) => {
-
+// Reducer function
+const authReducer = (state, action) => {
     switch (action.type) {
-        case 'LOGIN_START':
-
-        return {
-            user: null,
-            role: null,
-            token: null,
-        };
+        case "LOGIN_START":
+            return {
+                ...state,
+                user: null,
+                role: null,
+                token: null,
+            };
 
         case "LOGIN_SUCCESS":
             return {
-                user:action.payload.user,
-                token:action.payload.token,
-                role:action.payload.role
+                ...state,
+                user: action.payload.user,
+                role: action.payload.role,
+                token: action.payload.token,
             };
 
-            case 'LOGOUT':
-
+        case "LOGOUT":
             return {
+                ...state,
                 user: null,
                 role: null,
                 token: null,
@@ -41,25 +43,37 @@ const authReducer = (state , action) => {
     }
 };
 
-
-export const authContextProvider = ({ children }) => {
-    const { state, dispatch } = useReducer(authReducer, initialState)
+// AuthContext Provider
+export const AuthContextProvider = ({ children }) => {
+    const [state, dispatch] = useReducer(authReducer, initialState);
 
     useEffect(() => {
-        localStorage.setItem("user", JSON.stringify(state.user))
-        localStorage.setItem("token", state.token);
-        localStorage.setItem("role", state.role);
+        localStorage.setItem('user', JSON.stringify(state.user))
+        localStorage.setItem('token', state.token)
+        localStorage.setItem('role', state.role)
     }, [state]);
 
     return (
-        <authContext.Provider value={{
-        user: state.user, 
-        token: state.token, 
-        role: state.role, 
-        dispatch,
-    }}
-    >
-        {children}
-    </authContext.Provider>
+        <AuthContext.Provider
+            value={{
+                user: state.user,
+                token: state.token,
+                role: state.role,
+                dispatch,
+            }}
+        >
+            {children}
+        </AuthContext.Provider>
     );
+};
+
+// Custom Hook for using the AuthContext
+export const useAuthContext = () => {
+    const context = useContext(AuthContext);
+
+    if (!context) {
+        throw new Error("useAuthContext must be used within an AuthContextProvider");
+    }
+
+    return context;
 };

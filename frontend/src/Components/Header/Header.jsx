@@ -1,9 +1,9 @@
-import { useEffect, useRef, useContext  } from "react";
+import { useEffect, useRef, useContext } from "react";
 import logo from "../../assets/data/Images/logo.png";
 import userImg from "../../assets/data/Images/avatar-icon.png";
 import { NavLink, Link } from "react-router-dom";
 import { BiMenu } from "react-icons/bi";
-import { authContext } from "../../context/AuthContext";
+import { AuthContext } from "../../context/AuthContext";
 
 const navLinks = [
   { path: "/home", display: "Home" },
@@ -15,22 +15,27 @@ const navLinks = [
 const Header = () => {
   const headerRef = useRef(null);
   const menuRef = useRef(null);
-  const {user, role, token} = useContext(authContent)
+  const { user, role, token } = useContext(AuthContext);
 
+  // Sticky Header Logic
   const handleStickyHeader = () => {
-    if (document.body.scrollTop > 80 || document.documentElement.scrollTop > 80) {
-      headerRef.current.classList.add("sticky_header");
-    } else {
-      headerRef.current.classList.remove("sticky_header");
+    const isScrolled = document.body.scrollTop > 80 || document.documentElement.scrollTop > 80;
+    if (headerRef.current) {
+      headerRef.current.classList.toggle("sticky_header", isScrolled);
     }
   };
 
   useEffect(() => {
     window.addEventListener("scroll", handleStickyHeader);
     return () => window.removeEventListener("scroll", handleStickyHeader);
-  }, []); // Empty dependency array to ensure this runs only once on mount
+  }, []);
 
-  const toggleMenu = () => menuRef.current.classList.toggle("show__menu");
+  // Toggle Mobile Menu
+  const toggleMenu = () => {
+    if (menuRef.current) {
+      menuRef.current.classList.toggle("show__menu");
+    }
+  };
 
   return (
     <header ref={headerRef} className="header flex items-center">
@@ -38,14 +43,16 @@ const Header = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div>
-            <img src={logo} alt="Logo" />
+            <Link to="/home">
+              <img src={logo} alt="Logo" />
+            </Link>
           </div>
 
-          {/* Menu */}
-          <div className="navigation" ref={menuRef}>
+          {/* Navigation Menu */}
+          <nav className="navigation" ref={menuRef}>
             <ul className="menu flex items-center gap-[2.7rem]">
-              {navLinks.map((link, index) => (
-                <li key={index}>
+              {navLinks.map((link) => (
+                <li key={link.path}>
                   <NavLink
                     to={link.path}
                     className={({ isActive }) =>
@@ -59,31 +66,34 @@ const Header = () => {
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
 
-          {/* Nav Right */}
+          {/* Right Section */}
           <div className="flex items-center gap-4">
-
-            {
-              token && user? (
-               <div>
-              <Link to={'${role==="doctor" ? "/doctors/profile/me" : "/users/profile/me"}'}>
-                <figure className="w-[35px] h-[35px] rounded-full cursor-pointer">
-                  <img src={user?.photo} className="w-full rounded-full" alt=" " />
-                </figure>
-
-                <h2>{user?.name}</h2>
+            {token && user ? (
+              <div className="flex items-center gap-2">
+                <Link
+                  to={role === "doctor" ? "/doctors/profile/me" : "/users/profile/me"}
+                  className="flex items-center"
+                >
+                  <figure className="w-[35px] h-[35px] rounded-full overflow-hidden cursor-pointer">
+                    <img
+                      src={user.photo || userImg}
+                      className="w-full h-full object-cover"
+                      alt={user.name || "User Avatar"}
+                    />
+                  </figure>
+                  <h2 className="text-[16px] font-[500] text-textColor ml-2">{user.name}</h2>
+                </Link>
+              </div>
+            ) : (
+              <Link to="/login">
+                <button className="bg-primaryColor py-2 px-6 text-white font-[600] h-[44px] flex items-center justify-center rounded-[50px]">
+                  Login
+                </button>
               </Link>
-            </div> ) : ( <Link to="/login">
-              <button className="bg-primaryColor py-2 px-6 text-white font-[600] h-[44px] flex items-center justify-center rounded-[50px]">
-                Login
-              </button>
-            </Link>
             )}
-            
-           
-           
-          
+
             {/* Mobile Menu Toggle */}
             <span className="md:hidden" onClick={toggleMenu}>
               <BiMenu className="w-6 h-6 cursor-pointer" />

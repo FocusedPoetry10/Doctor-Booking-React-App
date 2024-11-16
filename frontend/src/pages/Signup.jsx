@@ -37,8 +37,8 @@ const Signup = () => {
                 if (data?.secure_url) {
                     setFormData({ ...formData, photo: data.secure_url }); // Update photo URL in formData
                 }
-            } catch {
-                toast.err("Failed to upload image. Please try again.");
+            } catch (err) {
+                toast.error("Failed to upload image. Please try again.");
             }
         }
     };
@@ -47,6 +47,7 @@ const Signup = () => {
         event.preventDefault();
         setLoading(true);
 
+        // Add any additional validation here before sending request
         try {
             const res = await fetch(`${BASE_URL}/api/v1/auth/register`, {
                 method: 'POST',
@@ -173,6 +174,7 @@ const Signup = () => {
                                         onChange={handleFileInputChange}
                                         accept=".jpg, .png"
                                         className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
+                                        aria-label="Upload Profile Picture"
                                     />
                                     <label
                                         htmlFor="customFile"

@@ -6,13 +6,14 @@ import Feedback from "./Feedback";
 import SidePanel from "./SidePanel";
 
 const DoctorDetails = () => {
-  const [tab, setTab] = useState("about");  // Added state to manage active tab
+  const [tab, setTab] = useState("about");
 
   return (
     <section>
       <div className="max-w-[1170px] px-5 mx-auto">
         <div className="grid md:grid-cols-3 gap-[50px]">
           <div className="md:col-span-2">
+            {/* Doctor Info Section */}
             <div className="flex items-center gap-5">
               <figure className="max-w-[200px] max-h-[200px]">
                 <img src={doctorImg} alt="Doctor" className="w-full h-auto" />
@@ -35,41 +36,40 @@ const DoctorDetails = () => {
                 </div>
 
                 <p className="text__para text-[14px] leading-6 md:text-[15px] lg:max-w-[390px]">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Dicta, alias!
+                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Dicta, alias!
                 </p>
               </div>
             </div>
 
+            {/* Tab Section */}
             <div className="mt-[50px] border-b border-solid border-[#0066ff34]">
               <button
                 onClick={() => setTab("about")}
-                className={`${
-                  tab === "about" && "border-b border-solid border-primaryColor"
-                } py-2 px-5 mr-5 text-[16px] leading-7 text-headingColor font-semibold`}
+                className={`py-2 px-5 mr-5 text-[16px] leading-7 text-headingColor font-semibold ${tab === "about" && "border-b border-solid border-primaryColor"}`}
+                aria-selected={tab === "about"}
               >
                 About
               </button>
 
               <button
                 onClick={() => setTab("feedback")}
-                className={`${
-                  tab === 'feedback' && "border-b border-solid border-primaryColor"
-                } py-2 px-5 mr-5 text-[16px] leading-7 text-headingColor font-semibold`}
+                className={`py-2 px-5 mr-5 text-[16px] leading-7 text-headingColor font-semibold ${tab === "feedback" && "border-b border-solid border-primaryColor"}`}
+                aria-selected={tab === "feedback"}
               >
                 Feedback
               </button>
             </div>
 
+            {/* Tab Content */}
             <div className="mt-[50px]">
-                {tab === "about" && <DoctorAbout />}
-                {tab === "feedback" && <Feedback />}
+              {tab === "about" && <DoctorAbout />}
+              {tab === "feedback" && <Feedback />}
             </div>
           </div>
 
+          {/* Side Panel Section */}
           <div>
-          <SidePanel />
-            {/* Placeholder for additional content, if any */}
+            <SidePanel />
           </div>
         </div>
       </div>

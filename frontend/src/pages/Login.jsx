@@ -2,7 +2,7 @@ import { useState, useContext } from "react";
 import { Link, useNavigate } from 'react-router-dom';
 import { BASE_URL } from "../config";
 import { toast } from "react-toastify";
-import { authContext } from "../context/AuthContext";
+import { AuthContext } from "../context/AuthContext";
 import HashLoader from "react-spinners/HashLoader";
 
 const Login = () => {
@@ -13,7 +13,7 @@ const Login = () => {
 
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
-    const {dispatch} = useContext(authContext)
+    const {dispatch} = useContext(AuthContext)
 
     const handleInputChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -45,13 +45,13 @@ const Login = () => {
                     token: result.token,
                     role: result.role,
                 },
-            })
+            });
 
             console.log(result, "login data");
 
             setLoading(false);
             toast.success(result.message);
-            navigate('/login');
+            navigate('/home');
         } catch (err) {
             toast.error(err.message);
             setLoading(false);
