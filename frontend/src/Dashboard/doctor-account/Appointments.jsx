@@ -1,5 +1,6 @@
-import React from "react";
-import { formateDate } from "../../utils/formateDate";
+/* eslint-disable react/prop-types */
+// import React from "react";
+import { formateDate } from "../../../utils/formateDate";
 
 const Appointments = ({appointments}) => {
     return (
