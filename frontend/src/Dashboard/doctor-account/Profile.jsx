@@ -15,11 +15,15 @@ const Profile = ({doctorData}) => {
         gender: "",
         specialization: "",
         ticketPrice: 0,
-        qualifications: [],
-        experiences: [],
-        timeSlots: [],
-        about:"",
-        photo:null
+        qualifications: [
+            { startingDate: "", endingDate:"", degree:"", university:"" }, // Initial value for qualifications
+        ],
+        experiences: [
+            { startingDate: "", endingDate:"", position:"", hospital:"" },
+        ],
+        timeSlots: [
+            { day: "", startingTime:"", endingTime:"" }
+        ]
     });
 
     const handleInputChange = (e) => {
