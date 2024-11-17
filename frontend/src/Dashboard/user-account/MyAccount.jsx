@@ -1,13 +1,10 @@
 import { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import { toast } from "react-toastify";
-
 import MyBookings from "./MyBookings";
 import Profile from "./Profile";
-
 import useGetProfile from "../../hooks/useFetchData";
 import { BASE_URL } from "../../config";
-
 import Loading from "../../Components/Loader/Loading";
 import Error from "../../Components/Error/Error";
 
