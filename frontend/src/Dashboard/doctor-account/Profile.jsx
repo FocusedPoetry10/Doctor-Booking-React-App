@@ -10,18 +10,33 @@ const Profile = () => {
         gender: "",
         specialization: "",
         ticketPrice: 0,
-        qualifications: [
-            { startingDate: "", endingDate:"", degree:"", university:"" }, // Initial value for qualifications
-        ],
-        experiences: [
-            { startingDate: "", endingDate:"", position:"", hospital:"" },
-        ],
-        timeSlots: [
-            { day: "", startingTime:"", endingTime:"" }
-        ]
+        qualifications: [],
+        experiences: [],
+        timeslots: [],
+        about: "",
+        photo: null,
+            
     });
+    
 
-    const handleInputChange = (e) => {
+    useEffect(()=>{
+    setFormData({
+      name: doctorData?.name,
+      email: doctorData?.email,
+      phone: doctorData?.phone,
+      bio: doctorData?.bio,
+      gender: doctorData?.gender,
+      specialization: doctorData?.specialization,
+      ticketPrice: doctorData?.ticketPrice,
+      qualifications: doctorData?.qualifications,
+      experiences: doctorData?.experiences,
+      timeslots: doctor?.timeslots,
+      about: doctor?.about,
+      photo: doctor?.photo,
+
+    });
+    },[doctorData]);
+    const handleInputChange = e => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
