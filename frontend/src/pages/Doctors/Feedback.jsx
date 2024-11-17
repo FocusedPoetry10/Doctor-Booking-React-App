@@ -1,62 +1,44 @@
-import { useState } from 'react';
+import { useState } from "react";
 import avatar from "../../assets/data/Images/avatar-icon.png";
-import { formateDate } from "../../../utils/formateDate.js"; // Fixed the typo here
-import { AiFillStar } from 'react-icons/ai';
+import { formatDate } from "../../../utils/formatDate.js"; // Ensure this matches your utility function's name
+import { AiFillStar } from "react-icons/ai";
 import FeedbackForm from "./FeedbackForm";
 
-const Feedback = () => {
+const Feedback = ({ reviews, totalRating }) => {
     const [showFeedbackForm, setShowFeedbackForm] = useState(false);
-
-    // Dummy review data (replace with dynamic data)
-    const reviews = [
-        {
-            userName: "Ali Ahmed",
-            date: "12-11-2024",
-            rating: 5,
-            review: "Good services, highly recommended👍"
-        },
-        {
-            userName: "Sarah Khan",
-            date: "10-11-2024",
-            rating: 4,
-            review: "Great experience, but can be improved."
-        }
-    ];
 
     return (
         <div>
             <div className="mb-[50px]">
                 <h4 className="text-[20px] leading-[30px] font-bold text-headingColor mb-[30px]">
-                    All reviews (272)
+                    All reviews ({totalRating})
                 </h4>
 
-                {/* Loop over reviews to render each */}
                 {reviews.map((review, index) => (
                     <div key={index} className="flex justify-between gap-10 mb-[30px]">
                         <div className="flex gap-3">
                             <figure className="w-10 h-10 rounded-full">
-                                <img className="w-full" src={avatar} alt="User Avatar" />
+                                <img className="w-full" src={review?.user?.photo} alt="" />
                             </figure>
 
                             <div>
                                 <h5 className="text-[16px] leading-6 text-primaryColor font-bold">
-                                    {review.userName}
+                                    {review?.user?.name}
                                 </h5>
                                 <p className="text-[14px] leading-6 text-textColor">
-                                    {formateDate(review.date)} {/* Fixed function name */}
+                                    {formatDate(review?.createdAt)}
                                 </p>
                                 <p className="text__para mt-3 font-medium text-[15px]">
-                                    {review.review}
+                                    {review.reviewText}
                                 </p>
                             </div>
                         </div>
 
                         <div className="flex gap-1 items-center">
-                            {/* Render dynamic stars based on rating */}
-                            {[...Array(5)].map((_, index) => (
+                            {[...Array(review?.rating)].map((_, starIndex) => (
                                 <AiFillStar
-                                    key={index}
-                                    color={index < review.rating ? "#0067FF" : "#d3d3d3"}
+                                    key={starIndex}
+                                    color={starIndex < review.rating ? "#0067FF" : "#d3d3d3"}
                                     className="text-[18px]"
                                 />
                             ))}
@@ -64,16 +46,14 @@ const Feedback = () => {
                     </div>
                 ))}
 
-                {/* Button to toggle feedback form */}
-                {!showFeedbackForm ? (
+                {!showFeedbackForm && (
                     <div className="text-center">
                         <button className="btn" onClick={() => setShowFeedbackForm(true)}>
                             Give Feedback
                         </button>
                     </div>
-                ) : (
-                    <FeedbackForm />
                 )}
+                   {showFeedbackForm && <FeedbackForm />}
             </div>
         </div>
     );
