@@ -18,7 +18,7 @@ router.use("/:doctorId/reviews", reviewRouter);
 // Routes
 router.get("/:id", getSingleDoctor); // Get a single doctor
 router.get("/", getAllDoctor); // Get all doctors
-router.put("/:id", authenticate, restrict(["doctor, admin"]), updateDoctor); // Update doctor (only for doctors)
+router.put("/:id", authenticate, restrict(["doctor"]), updateDoctor); // Update doctor (only for doctors)
 router.delete("/:id", authenticate, restrict(["doctor"]), deleteDoctor); // Delete doctor (only for doctors)
 router.get("/profile/me", authenticate, restrict(['doctor']), getDoctorProfile);
 

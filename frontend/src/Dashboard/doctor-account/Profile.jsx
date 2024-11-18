@@ -43,27 +43,29 @@ const Profile = ({doctorData}) => {
     console.log(formData);
 
     try {
-        const res = await fetch (`${BASE_URL}/api/v1/doctors/${doctorData._id}`, {
-        method:"PUT",
+    const res = await fetch(`${BASE_URL}/api/v1/doctors/${doctorData._id}`, {
+        method: "PUT",
         headers: {
-            "content-type": "application/json",
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(formData),
-      });
+    });
 
-      const result = await res.json();
+    const result = await res.json();
 
-      if (!res.ok){
-        console.log("Error Response: ", result)
-        throw Error(result.message);
-      }
-
-      toast.success(result.message);
-    } catch (err) {
-        toast.error("Update failed: ", + err.message);
+    if (!res.ok) {
+        console.log("Error Response: ", result);
+        throw new Error(result.message || "An unknown error occurred");
     }
+
+    toast.success(result.message);
+        } catch (err) {
+            console.error("Caught Error: ", err);
+            toast.error(`Update failed: ${err.message}`);
+        }
    };
+
 
    // reusable function for adding item
    const addItem = (key, item) => {

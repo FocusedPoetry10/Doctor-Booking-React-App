@@ -2,47 +2,76 @@ import mongoose from "mongoose";
 
 const DoctorSchema = new mongoose.Schema(
   {
-    email: { type: String, required: true, unique: true },
+    email: { 
+      type: String, 
+      required: true, 
+      unique: true, 
+      trim: true,
+      match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, // Email validation regex
+    },
     password: { type: String, required: true },
-    name: { type: String, required: true },
+    name: { type: String, required: true, trim: true },
     phone: { 
-      type: String,  // Changed to String to allow formats like +1234567890
+      type: String, 
       required: false, 
+      match: /^\+?[1-9]\d{1,14}$/, // Optional: Validate E.164 phone format
     },
     photo: { type: String },
-    ticketPrice: { type: Number },
+    ticketPrice: { type: Number, min: 0 },
     role: {
       type: String,
-      enum: ["doctor"],  // Restricting to "doctor" role for specificity
+      enum: ["doctor"], // Restricting to "doctor" role for specificity
       required: true,
     },
-    // Fields for doctors only
-    specialization: { type: String, required: false },
+    specialization: { type: String, trim: true },
     qualifications: {
-      type: [{ type: String }],
-      validate: [arrayLimit, '{PATH} exceeds the limit of 5 qualifications'], // Example validation for array length
+      type: [
+        { 
+          startingDate: { type: Date, required: true },
+          endingDate: { type: Date, required: true },
+          degree: { type: String, required: true, trim: true },
+          university: { type: String, required: true, trim: true },
+       },
+      ],
+      validate: [arrayLimit(5), "Exceeds the limit of 5 qualifications"], // Limit validation
     },
     experiences: {
-      type: [{ type: String }],
-      validate: [arrayLimit, '{PATH} exceeds the limit of 10 experiences'], // Example validation for array length
+      type: [
+        {
+          startingDate: { type: Date, required: true },
+          endingDate: { type: Date, required: true },
+          position: { type: String, required: true, trim: true },
+          hospital: { type: String, required: true, trim: true },
+        },
+      ],
+      validate: [arrayLimit(10), "Exceeds the limit of 10 experiences"], // Limit validation
     },
     bio: { 
       type: String, 
-      maxLength: 50, 
+      maxLength: 250, // Increased length for better usability
     },
-    about: { type: String },
+    about: { type: String, trim: true },
     timeSlots: {
-      type: [{ type: String }],
-      default: [],  // Default to empty array if time slots aren’t set
+      type: [
+        {
+          day: { type: String, required: true }, // E.g., "Monday"
+          startingTime: { type: String, required: true }, // E.g., "09:00"
+          endingTime: { type: String, required: true }, // E.g., "17:00"
+        },
+      ],
+      default: [], // Default to an empty array if no time slots are set
     },
     reviews: [{ type: mongoose.Types.ObjectId, ref: "Review" }],
     averageRating: {
       type: Number,
       default: 0,
+      min: 0,
+      max: 5, // Assuming ratings are on a scale of 0-5
     },
     totalRating: {
       type: Number,
       default: 0,
+      min: 0,
     },
     isApproved: {
       type: String,
@@ -51,12 +80,14 @@ const DoctorSchema = new mongoose.Schema(
     },
     appointments: [{ type: mongoose.Types.ObjectId, ref: "Appointment" }],
   },
-  { timestamps: true }  // Adding createdAt and updatedAt timestamps for record tracking
+  { timestamps: true } // Automatically adds createdAt and updatedAt
 );
 
-// Custom validation for arrays (optional):
-function arrayLimit(val) {
-  return val.length <= 5;
+// Custom validation for array limits:
+function arrayLimit(limit) {
+  return function (val) {
+    return val.length <= limit;
+  };
 }
 
 export default mongoose.model("Doctor", DoctorSchema);
