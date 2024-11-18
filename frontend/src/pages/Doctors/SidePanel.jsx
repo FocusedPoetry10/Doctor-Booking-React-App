@@ -7,7 +7,7 @@ const SidePanel = ({ doctorId = '', ticketPrice = 'N/A', timeSlots = [] }) => {
             <div className="flex items-center justify-between">
                 <p className="text__para mt-0 font-semibold">Ticket Price</p>
                 <span className="text-[16px] leading-7 lg:text-[22px] lg:leading-8 text-headingColor font-bold">
-                    {ticketPrice ? String(ticketPrice) : 'N/A'} {/* Fallback for ticket price */}
+                    {ticketPrice !== 'N/A' ? `Rs ${String(ticketPrice)}` : 'N/A'} {/* Fallback for ticket price */}
                 </span>
             </div>
 

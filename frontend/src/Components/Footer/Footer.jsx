@@ -5,7 +5,7 @@ import { AiFillGithub, AiOutlineInstagram } from "react-icons/ai";
 
 const socialLinks = [
   {
-    path: "https://github.com/VishwaMoorthy12/",
+    path: "https://github.com/VineethKumar-2003/Doctor-Booking-React-App/",
     icon: <AiFillGithub className="group-hover:text-white w-4 h-5" />,
     label: "GitHub",
   },
@@ -51,7 +51,7 @@ const Footer = () => {
           <div>
             <img src={logo} alt="Company Logo" className="mb-4" />
             <p className="text-[16px] leading-7 font-[400] text-textColor">
-              Copyright © {year} developed by Vishwa Moorthy. All rights reserved.
+              Copyright © {year} developed by Trifecta. All rights reserved.
             </p>
 
             <div className="flex items-center gap-3 mt-4">
