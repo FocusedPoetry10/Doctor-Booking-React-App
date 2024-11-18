@@ -24,8 +24,16 @@ export const createReview = async (req, res) => {
             return res.status(400).json({ success: false, message: "Doctor and User IDs are required" });
         }
 
+        // Validate required fields
+        const { rating, reviewText } = req.body;
+        if (!rating || !reviewText) {
+            return res.status(400).json({ success: false, message: "Rating and Review Text are required" });
+        }
+
+        // Create a new review
         const newReview = new Review({
-            ...req.body,
+            rating,
+            reviewText,
             doctor: doctorId,
             user: userId,
         });

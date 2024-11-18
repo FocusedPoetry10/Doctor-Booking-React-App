@@ -8,7 +8,7 @@ const useFetchData = (url) => {
 
     useEffect(() => {
         const fetchData = async () => {
-            setLoading(true);
+            setLoading(true);  // Set loading to true when starting the fetch request
 
             try {
                 const res = await fetch(url, {
@@ -18,14 +18,20 @@ const useFetchData = (url) => {
                 const result = await res.json();
 
                 if (!res.ok) {
-                    throw new error(result.message || 'Something went wrong. 🤢');
+                    throw new Error(result.message || 'Something went wrong. 🤢');
                 }
 
-                setData(result.data); // Ensure data is always an array
-                setLoading(false);
+                // Ensure data is valid and handle accordingly
+                if (result.data) {
+                    setData(result.data); // Assuming result.data is the desired data
+                } else {
+                    throw new Error('No data available.');
+                }
+
+                setLoading(false);  // Set loading to false after successful fetch
             } catch (err) {
                 setLoading(false);
-                setError(err.message);
+                setError(err.message || 'An unknown error occurred'); // Store the error message
             }
         };
 

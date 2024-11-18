@@ -7,7 +7,7 @@ import Tabs from './Tabs';
 import starIcon from '../../assets/data/images/Star.png';
 import DoctorAbout from '../../pages/Doctors/DoctorAbout';
 import Profile from './Profile';
-import Appointments from "./Appointments";
+import Appointments from './Appointments';
 
 const Dashboard = () => {
     const { data, loading, error } = useGetProfile(

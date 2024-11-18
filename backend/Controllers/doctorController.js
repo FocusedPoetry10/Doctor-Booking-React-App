@@ -1,8 +1,24 @@
 import Doctor from "../models/DoctorSchema.js";
 import Booking from "../models/BookingSchema.js";
 
+// Reusable Success and Error Handler
+const handleSuccess = (res, message, data = null) => {
+    return res.status(200).json({ success: true, message, data });
+};
+
+const handleError = (res, message) => {
+    return res.status(500).json({ success: false, message });
+};
+
+// Update Doctor
 export const updateDoctor = async (req, res) => {
     const id = req.params.id;
+    const { name, email, phone } = req.body;
+
+    // Validation: Check required fields
+    if (!name || !email || !phone) {
+        return res.status(400).json({ success: false, message: "Missing required fields" });
+    }
 
     try {
         const updatedDoctor = await Doctor.findByIdAndUpdate(
@@ -15,17 +31,17 @@ export const updateDoctor = async (req, res) => {
             return res.status(404).json({ success: false, message: "Doctor not found" });
         }
 
-        res.status(200).json({
-            success: true,
-            message: "Successfully updated",
-            data: updatedDoctor,
-        });
+        handleSuccess(res, "Successfully updated", updatedDoctor);
     } catch (err) {
-        console.error('Update Error:', err);
-        res.status(500).json({ success: false, message: "Failed to update" });
+        if (err.name === 'ValidationError') {
+            return res.status(400).json({ success: false, message: err.message });
+        }
+        console.error(`Error updating doctor with ID ${id}:`, err);
+        handleError(res, "Failed to update");
     }
 };
 
+// Delete Doctor
 export const deleteDoctor = async (req, res) => {
     const id = req.params.id;
 
@@ -36,16 +52,14 @@ export const deleteDoctor = async (req, res) => {
             return res.status(404).json({ success: false, message: "Doctor not found" });
         }
 
-        res.status(200).json({
-            success: true,
-            message: "Successfully deleted",
-        });
+        handleSuccess(res, "Successfully deleted");
     } catch (err) {
-        console.error('Delete Error:', err);
-        res.status(500).json({ success: false, message: "Failed to delete" });
+        console.error(`Error deleting doctor with ID ${id}:`, err);
+        handleError(res, "Failed to delete");
     }
 };
 
+// Get Single Doctor
 export const getSingleDoctor = async (req, res) => {
     const id = req.params.id;
 
@@ -58,70 +72,66 @@ export const getSingleDoctor = async (req, res) => {
             return res.status(404).json({ success: false, message: "No Doctor found" });
         }
 
-        res.status(200).json({
-            success: true,
-            message: "Doctor found",
-            data: doctor,
-        });
+        if (!doctor.reviews) {
+            doctor.reviews = [];
+        }
+
+        handleSuccess(res, "Doctor found", doctor);
     } catch (err) {
-        console.error('Get Single Doctor Error:', err);
-        res.status(500).json({ success: false, message: "Failed to retrieve doctor" });
+        console.error(`Error fetching doctor with ID ${id}:`, err);
+        handleError(res, "Failed to retrieve doctor");
     }
 };
 
+// Get All Doctors with Pagination and Search
 export const getAllDoctor = async (req, res) => {
     try {
-        const { query } = req.query;
+        const { query, page = 1, limit = 10 } = req.query;
+        const skip = (page - 1) * limit;
         let doctors;
 
         if (query) {
             doctors = await Doctor.find({
-                isApproved: 'approved', 
+                isApproved: 'approved',
                 $or: [
                     { name: { $regex: query, $options: "i" } },
                     { specialization: { $regex: query, $options: 'i' } },
                 ],
-            }).select("-password");
+            })
+                .skip(skip)
+                .limit(limit)
+                .select("-password");
         } else {
-            doctors = await Doctor.find({ isApproved: "approved" }).select("-password");
+            doctors = await Doctor.find({ isApproved: "approved" })
+                .skip(skip)
+                .limit(limit)
+                .select("-password");
         }
 
-        res.status(200).json({
-            success: true,
-            message: "Doctors found",
-            data: doctors,
-        });
+        handleSuccess(res, "Doctors found", doctors);
     } catch (err) {
-        console.error('Get All Doctors Error:', err);
-        res.status(500).json({
-            success: false,
-            message: "Failed to retrieve doctors",
-        });
+        console.error('Error fetching doctors:', err);
+        handleError(res, "Failed to retrieve doctors");
     }
 };
 
-
+// Get Doctor Profile (Logged in doctor)
 export const getDoctorProfile = async (req, res) => {
-    const doctorId = req.userId
+    const doctorId = req.userId;
 
     try {
         const doctor = await Doctor.findById(doctorId);
 
-        if(!doctor) {
-            return res
-                    .status(404)
-                    .json({success: false, message: "Doctor not found"});
+        if (!doctor) {
+            return res.status(404).json({ success: false, message: "Doctor not found" });
         }
 
-        const { password, ...rest} = doctor._doc
+        const { password, ...rest } = doctor._doc;
         const appointments = await Booking.find({ doctor: doctorId });
 
-        res
-            .status(200)
-            .json({success: true, message: "Profile info is getting", data:{...rest, appointments }});
+        handleSuccess(res, "Profile info is getting", { ...rest, appointments });
     } catch (err) {
-        res
-            .status(500)
-            .json({ success: false, message: "Something went wrong, cannot get" });
+        console.error(`Error fetching profile for doctor ID ${doctorId}:`, err);
+        handleError(res, "Something went wrong, cannot get profile");
     }
-}
+};

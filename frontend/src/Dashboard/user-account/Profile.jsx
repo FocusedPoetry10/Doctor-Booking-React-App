@@ -1,48 +1,59 @@
-/* eslint-disable react/prop-types */
-// import React from 'react';
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
+import PropTypes from "prop-types";
 import uploadImageToCloudinary from "../../../utils/uploadCloudinary";
 import { BASE_URL, token } from "../../config";
-import { toast } from 'react-toastify';
-import HashLoader from 'react-spinners/HashLoader';
+import { toast } from "react-toastify";
+import HashLoader from "react-spinners/HashLoader";
 
-const Profile = ({user}) => {
-
+const Profile = ({ user }) => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [imageUploading, setImageUploading] = useState(false);
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        password: '',
+        name: "",
+        email: "",
+        password: "",
         photo: null,
-        gender: '',
+        gender: "",
         bloodType: "",
     });
 
     const handleInputChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setFormData((prevState) => ({ ...prevState, [name]: value }));
     };
 
     useEffect(() => {
-        setFormData({ name: user.name, email: user.email, photo: user.photo, gender: user.gender, bloodType:user.bloodType });
+        if (user) {
+            setFormData({
+                name: user.name || "",
+                email: user.email || "",
+                photo: user.photo || "",
+                gender: user.gender || "",
+                bloodType: user.bloodType || "",
+            });
+        }
     }, [user]);
 
     const handleFileInputChange = async (event) => {
         const file = event.target.files[0];
         if (file) {
             setSelectedFile(file);
+            setImageUploading(true);
 
             try {
                 const data = await uploadImageToCloudinary(file);
                 if (data?.secure_url) {
-                    setFormData({ ...formData, photo: data.secure_url }); // Update photo URL in formData
+                    setFormData((prevState) => ({ ...prevState, photo: data.secure_url }));
+                    toast.success("Image uploaded successfully!");
                 }
             } catch (err) {
                 toast.error("Failed to upload image. Please try again.");
+            } finally {
+                setImageUploading(false);
             }
         }
     };
@@ -51,28 +62,26 @@ const Profile = ({user}) => {
         event.preventDefault();
         setLoading(true);
 
-        // Add any additional validation here before sending request
         try {
-            const res = await fetch(`${BASE_URL}/api/v1/users/${user._id}`, {
-                method: 'PUT',
+            const response = await fetch(`${BASE_URL}/api/v1/users/${user._id}`, {
+                method: "PUT",
                 headers: {
-                    'Content-Type': 'application/json',
-                     Authorization: `Bearer ${token}`
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(formData),
             });
 
-            const { message } = await res.json();
-
-            if (!res.ok) {
-                throw new Error(message);
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.message || "Failed to update profile");
             }
 
-            setLoading(false);
-            toast.success(message);
+            toast.success(result.message || "Profile updated successfully!");
             navigate("/users/profile/me");
-        } catch (err) {
-            toast.error(err.message);
+        } catch (error) {
+            toast.error(error.message);
+        } finally {
             setLoading(false);
         }
     };
@@ -80,118 +89,118 @@ const Profile = ({user}) => {
     return (
         <div className="mt-10">
             <form onSubmit={submitHandler}>
-                            {/* Input fields for name, email, and password */}
-                            <div className="mb-5">
-                                <input
-                                    type="text"
-                                    placeholder="Full Name"
-                                    name="name"
-                                    value={formData.name}
-                                    onChange={handleInputChange}
-                                    className="w-full pr-4 py-3 border-b border-solid border-[#0066ff61] focus:outline-none focus:border-b-primaryColor text-[16px] leading-7 text-headingColor placeholder:text-textColor cursor-pointer"
-                                    required
-                                />
-                            </div>
-                            <div className="mb-5">
-                                <input
-                                    type="email"
-                                    placeholder="Enter Your Email"
-                                    name="email"
-                                    value={formData.email}
-                                    onChange={handleInputChange}
-                                    className="w-full pr-4 py-3 border-b border-solid border-[#0066ff61] focus:outline-none focus:border-b-primaryColor text-[16px] leading-7 text-headingColor placeholder:text-textColor cursor-pointer"
-                                    aria-readonly
-                                    readOnly
-                                />
-                            </div>
-                            <div className="mb-5">
-                                <input
-                                    type="password"
-                                    placeholder="Password"
-                                    name="password"
-                                    value={formData.password}
-                                    onChange={handleInputChange}
-                                    className="w-full pr-4 py-3 border-b border-solid border-[#0066ff61] focus:outline-none focus:border-b-primaryColor text-[16px] leading-7 text-headingColor placeholder:text-textColor cursor-pointer"
-                                />
-                            </div>
-
-                            <div className="mb-5">
-                                <input
-                                    type="text"
-                                    placeholder="Blood Type"
-                                    name="bloodType"
-                                    value={formData.bloodType}
-                                    onChange={handleInputChange}
-                                    className="w-full pr-4 py-3 border-b border-solid border-[#0066ff61] focus:outline-none focus:border-b-primaryColor text-[16px] leading-7 text-headingColor placeholder:text-textColor cursor-pointer"
-                                    required
-                                />
-                            </div>
-
-                            {/* Role and Gender selection */}
-                            <div className="mb-5 flex items-center justify-between">
-                                <label className="label-style">
-                                    Gender:
-                                    <select
-                                        name="gender"
-                                        value={formData.gender}
-                                        onChange={handleInputChange}
-                                        className="select-style"
-                                    >
-                                        <option value="">Select</option>
-                                        <option value="male">Male</option>
-                                        <option value="female">Female</option>
-                                        <option value="other">Other</option>
-                                    </select>
-                                </label>
-                            </div>
-
-                            {/* Image Upload with Preview */}
-                            <div className="mb-5 flex items-center gap-3">
-                                {formData.photo && (
-                                    <figure className="w-[60px] h-[60px] rounded-full border-2 border-primaryColor flex items-center justify-center">
-                                        <img 
-                                            src={formData.photo} 
-                                            alt="Preview" 
-                                            className="w-full rounded-full" 
-                                        />
-                                    </figure>
-                                )}
-                                <div className="relative w-[130px] h-[50px]">
-                                    <input
-                                        type="file"
-                                        name="photo"
-                                        id="customFile"
-                                        onChange={handleFileInputChange}
-                                        accept=".jpg, .png"
-                                        className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
-                                        aria-label="Upload Profile Picture"
-                                    />
-                                    <label
-                                        htmlFor="customFile"
-                                        className="absolute top-0 left-0 w-full h-full flex items-center px-[0.75rem] py-[0.375rem] text-[15px] leading-6 overflow-hidden bg-[#066ff46] text-headingColor font-semibold rounded-lg truncate cursor-pointer"
-                                    >
-                                        {selectedFile? selectedFile.name : "Upload Photo"}
-                                    </label>
-                                </div>
-                            </div>
-
-                            {/* Sign Up Button */}
-                            <div className="mt-7">
-                                <button
-                                    disabled={loading}
-                                    type="submit"
-                                    className="w-full bg-primaryColor text-white text-[18px] leading-[30px] rounded-lg px-4 py-3"
-                                >
-                                    {loading ? (
-                                        <HashLoader size={25} color="#ffffff" />
-                                    ) : (
-                                        "Update"
-                                    )}
-                                </button>
-                            </div>
-                        </form>
+                <div className="mb-5">
+                    <input
+                        type="text"
+                        placeholder="Full Name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        className="input-style"
+                        required
+                    />
+                </div>
+                <div className="mb-5">
+                    <input
+                        type="email"
+                        placeholder="Enter Your Email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        className="input-style"
+                        readOnly
+                        aria-readonly="true"
+                    />
+                </div>
+                <div className="mb-5">
+                    <input
+                        type="password"
+                        placeholder="Password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleInputChange}
+                        className="input-style"
+                    />
+                </div>
+                <div className="mb-5">
+                    <input
+                        type="text"
+                        placeholder="Blood Type"
+                        name="bloodType"
+                        value={formData.bloodType}
+                        onChange={handleInputChange}
+                        className="input-style"
+                        required
+                    />
+                </div>
+                <div className="mb-5">
+                    <label htmlFor="gender" className="label-style">
+                        Gender:
+                        <select
+                            id="gender"
+                            name="gender"
+                            value={formData.gender}
+                            onChange={handleInputChange}
+                            className="select-style"
+                        >
+                            <option value="">Select</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </label>
+                </div>
+                <div className="mb-5 flex items-center gap-3">
+                    {formData.photo && !imageUploading && (
+                        <figure className="w-[60px] h-[60px] rounded-full border-2 border-primaryColor flex items-center justify-center">
+                            <img
+                                src={formData.photo}
+                                alt="Preview"
+                                className="w-full rounded-full"
+                            />
+                        </figure>
+                    )}
+                    <div className="relative w-[130px] h-[50px]">
+                        <input
+                            type="file"
+                            name="photo"
+                            id="customFile"
+                            onChange={handleFileInputChange}
+                            accept=".jpg, .png"
+                            className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
+                            aria-label="Upload Profile Picture"
+                        />
+                        <label
+                            htmlFor="customFile"
+                            className="absolute top-0 left-0 w-full h-full flex items-center px-3 py-2 text-[15px] bg-primaryColor text-white font-semibold rounded-lg cursor-pointer"
+                        >
+                            {selectedFile ? selectedFile.name : "Upload Photo"}
+                        </label>
+                    </div>
+                </div>
+                <div className="mt-7">
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full bg-primaryColor text-white text-[18px] rounded-lg px-4 py-3"
+                    >
+                        {loading ? <HashLoader size={25} color="#ffffff" /> : "Update"}
+                    </button>
+                </div>
+            </form>
         </div>
     );
+};
+
+Profile.propTypes = {
+    user: PropTypes.shape({
+        _id: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired,
+        email: PropTypes.string.isRequired,
+        photo: PropTypes.string,
+        gender: PropTypes.string,
+        bloodType: PropTypes.string,
+    }).isRequired,
 };
 
 export default Profile;

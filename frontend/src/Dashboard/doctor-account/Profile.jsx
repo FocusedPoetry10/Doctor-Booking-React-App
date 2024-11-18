@@ -40,8 +40,10 @@ const Profile = ({doctorData}) => {
    const updateProfileHandler = async e => {
     e.preventDefault();
 
+    console.log(formData);
+
     try {
-      const res = await fetch (`${BASE_URL}/api/v1/doctors/${doctorData._id}`, {
+        const res = await fetch (`${BASE_URL}/api/v1/doctors/${doctorData._id}`, {
         method:"PUT",
         headers: {
             "content-type": "application/json",
@@ -53,12 +55,13 @@ const Profile = ({doctorData}) => {
       const result = await res.json();
 
       if (!res.ok){
+        console.log("Error Response: ", result)
         throw Error(result.message);
       }
 
       toast.success(result.message);
     } catch (err) {
-        toast.error(err.message);
+        toast.error("Update failed: ", + err.message);
     }
    };
 
@@ -97,8 +100,16 @@ const Profile = ({doctorData}) => {
     });
    };
 
-    const handleQualificationChange = (event, index) => {
-        handleReusableInputChangeFunc("qualifications", index, event);
+    const handleQualificationChange = (index, fieldName, value) => {
+        setFormData((prevFormData) => {
+            const updatedQualifications = [...prevFormData.qualifications];
+            updatedQualifications[index] ={
+                ...updatedQualifications[index],
+                [fieldName]: value,
+            };
+            console.log("updated Qualifications:", updatedQualifications);
+            return { ...prevFormData, qualifications: updatedQualifications };
+        });
     };
 
     const deleteQualification = (e, index) => {
@@ -116,8 +127,15 @@ const Profile = ({doctorData}) => {
         });
        };
     
-        const handleExperienceChange = (event, index) => {
-            handleReusableInputChangeFunc("experiences", index, event);
+        const handleExperienceChange = (index, fieldName, value) => {
+            setFormData((prevFormData) => {
+                const updatedExperiences = [...prevFormData.experiences];
+                updatedExperiences[index] = {
+                    ...updatedExperiences[index],
+                    [fieldName]: value,
+                };
+                return { ...prevFormData, experiences: updatedExperiences};
+            });
         };
     
         const deleteExperience = (e, index) => {
@@ -133,13 +151,23 @@ const Profile = ({doctorData}) => {
             });
            };
         
-            const handleTimeSlotChange = (event, index) => {
-                handleReusableInputChangeFunc("timeSlots", index, event);
+            const handleTimeSlotChange = (index, fieldName, value) => {
+                setFormData((prevFormData) => {
+                    const updatedTimeSlots = [...prevFormData.timeSlots];
+                    updatedTimeSlots[index] = {
+                        ...updatedTimeSlots[index],
+                        [fieldName]: value,
+                    };
+                    return { ...prevFormData, timeSlots: updatedTimeSlots };
+                });
             };
         
             const deleteTimeSlot = (e, index) => {
                 e.preventDefault();
-                deleteItem("timeSlots", index);
+                setFormData((prevFormData) => ({
+                    ...prevFormData,
+                    timeSlots: prevFormData.timeSlots.filter((_, i) => i !== index),
+                }));
             };
 
     return (
@@ -170,8 +198,6 @@ const Profile = ({doctorData}) => {
                         onChange={handleInputChange}
                         placeholder="Email"
                         className="form__input"
-                        readOnly
-                        disabled
                     />
                 </div>
 
@@ -196,7 +222,7 @@ const Profile = ({doctorData}) => {
                         onChange={handleInputChange}
                         placeholder="Bio"
                         className="form__input"
-                        maxLength={100}
+                        maxLength={10000}
                     />
                 </div>
 
@@ -419,68 +445,68 @@ const Profile = ({doctorData}) => {
                 </div>
 
                 <div className="mb-5">
-                    <p className="form__label">Time Slots*</p>
-                    {formData.timeSlots?.map((item, index) => (
-                        <div key={index} className="mb-5">
-                            <div className="grid grid-cols-2 md:grid-cols-4 mb-[30px] gap-5">
-                                <div>
-                                    <p className="form__label">Day*</p>
-                                    <select name="day" value={item.day} className="form__input py-3.5">
-                                        <option value="">Select</option>
-                                        <option value="saturday">Saturday</option>
-                                        <option value="sunday">Sunday</option>
-                                        <option value="monday">Monday</option>
-                                        <option value="tuesday">Tuesday</option>
-                                        <option value="wednesday">Wednesday</option>
-                                        <option value="thursday">Thursday</option>
-                                        <option value="friday">Friday</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <p className="form__label">Starting Time*</p>
-                                    <input
-                                        type="time"
-                                        name="startingTime"
-                                        value={item.startingTime}
-                                        className="form__input"
-                                        onChange={(e) =>
-                                            handleTimeSlotChange(
-                                                index,
-                                                "startingTime",
-                                                e.target.value
-                                            )
-                                        }
-                                    />
-                                </div>
-                                <div>
-                                    <p className="form__label">Ending Time*</p>
-                                    <input
-                                        type="time"
-                                        name="endingTime"
-                                        value={item.endingTime}
-                                        className="form__input"
-                                        onChange={(e) =>
-                                            handleTimeSlotChange(
-                                                index,
-                                                "endingTime",
-                                                e.target.value
-                                            )
-                                        }
-                                    />
-                                </div>
-                                <div>
-                                <button onClick={e => deleteTimeSlot(e, index)} className="bg-red-600 p-2 rounded-full text-white text-[18px] cursor-pointer mt-6">
-                                <AiOutlineDelete />
-                            </button>
-                                </div>
+    <p className="form__label">Time Slots*</p>
+    {formData.timeSlots.map((item, index) => (
+        <div key={index} className="mb-5">
+            <div className="grid grid-cols-2 md:grid-cols-4 mb-[30px] gap-5">
+                <div>
+                    <p className="form__label">Day*</p>
+                    <select
+                        name="day"
+                        value={item.day}
+                        className="form__input py-3.5"
+                        onChange={(e) => handleTimeSlotChange(index, "day", e.target.value)}
+                    >
+                        <option value="">Select</option>
+                        <option value="saturday">Saturday</option>
+                        <option value="sunday">Sunday</option>
+                        <option value="monday">Monday</option>
+                        <option value="tuesday">Tuesday</option>
+                        <option value="wednesday">Wednesday</option>
+                        <option value="thursday">Thursday</option>
+                        <option value="friday">Friday</option>
+                    </select>
+                </div>
+                <div>
+                    <p className="form__label">Starting Time*</p>
+                    <input
+                        type="time"
+                        name="startingTime"
+                        value={item.startingTime}
+                        className="form__input"
+                        onChange={(e) => handleTimeSlotChange(index, "startingTime", e.target.value)}
+                    />
+                </div>
+                <div>
+                    <p className="form__label">Ending Time*</p>
+                    <input
+                        type="time"
+                        name="endingTime"
+                        value={item.endingTime}
+                        className="form__input"
+                        onChange={(e) => handleTimeSlotChange(index, "endingTime", e.target.value)}
+                    />
+                    </div>
+                    <div>
+                                <button
+                                    onClick={(e) => deleteTimeSlot(e, index)}
+                                    className="bg-red-600 p-2 rounded-full text-white text-[18px] cursor-pointer mt-6"
+                                >
+                                    <AiOutlineDelete />
+                                </button>
                             </div>
                         </div>
-                    ))}
+                    </div>
+                ))}
 
-                    <button onClick={addTimeSlot} className="bg-[#000] py-2 px-5 rounded text-white h-fit cursor-pointer">
+                    <button
+                        onClick={addTimeSlot}
+                        className="bg-[#000] py-2 px-5 rounded text-white h-fit cursor-pointer"
+                    >
                         Add TimeSlot
                     </button>
                 </div>
+
 
                 <div className="mb-5">
                     <p className="form__label">About*</p>
