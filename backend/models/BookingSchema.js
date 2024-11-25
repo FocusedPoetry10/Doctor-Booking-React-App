@@ -13,24 +13,29 @@ const bookingSchema = new mongoose.Schema(
             required: true,
         },
         ticketPrice: {
-            type: Number,  // Changed to Number for numeric value
+            type: Number, // Ensures numeric ticket price
             required: true,
         },
-        appointmentDate: {
-            type: Date,
-            required: true,
-        },
-        status: {  // Corrected typo from "statues" to "status"
+        status: {
             type: String,
-            enum: ["pending", "approved", "cancelled"],
-            default: "pending",
+            enum: ["pending", "approved", "cancelled"], // Defined allowed statuses
+            default: "pending", // Default status
         },
         isPaid: {
             type: Boolean,
-            default: true,
+            default: true, // Default to true assuming payment is made
         },
     },
-    { timestamps: true }
+    { timestamps: true } // Automatically handles createdAt and updatedAt fields
 );
+
+// Middleware to populate related fields on query
+bookingSchema.pre(/^find/, function (next) {
+    this.populate("user", "name email").populate({
+        path: "doctor",
+        select: "name bio photo", // Populate only relevant doctor fields
+    });
+    next();
+});
 
 export default mongoose.model("Booking", bookingSchema);

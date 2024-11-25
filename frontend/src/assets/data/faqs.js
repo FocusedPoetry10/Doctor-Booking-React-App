@@ -2,26 +2,26 @@ export const faqs = [
     {
       question: "What is your medical care?",
       content:
-        "One Medical was founded on a better model of care one designed around patients needs that provides a higher level of quality and service affordably. We do this through innovative design, excellent customer service, and the efficient use of technology.",
+        "We provide comprehensive healthcare services, including preventive check-ups, treatments for illnesses, and chronic condition management. Our goal is to ensure high-quality, personalized care for every patient.",
     },
     {
       question: "What happens if I need to go a hospital?",
       content:
-        "One Medical was founded on a better model of care one designed around patients needs that provides a higher level of quality and service affordably. We do this through innovative design, excellent customer service, and the efficient use of technology.",
+        "If hospitalization is required, we’ll guide you through the process, coordinate with the hospital, and share necessary records. We also provide follow-up care after your discharge.",
     },
     {
-      question: "What happens if I need to go a hospital?",
+      question: "How do I book an appointment?",
       content:
-        "One Medical was founded on a better model of care one designed around patients needs that provides a higher level of quality and service affordably. We do this through innovative design, excellent customer service, and the efficient use of technology.",
+        "You can book an appointment easily by visiting our website and using the online booking feature. Alternatively, you can call our office directly, and our staff will assist you in scheduling a convenient time for your visit.",
     },
     {
       question: "Can I visit your medical office?",
       content:
-        "One Medical was founded on a better model of care one designed around patients needs that provides a higher level of quality and service affordably. We do this through innovative design, excellent customer service, and the efficient use of technology.",
+        "Yes, you can visit us by scheduling an appointment. Our office is equipped to offer quality care, and we also accommodate walk-ins based on availability.",
     },
     {
       question: "Does you provide urgent care?",
       content:
-        "One Medical was founded on a better model of care one designed around patients needs that provides a higher level of quality and service affordably. We do this through innovative design, excellent customer service, and the efficient use of technology.",
+        "Yes, we offer urgent care for minor injuries, infections, and sudden illnesses. For emergencies, we recommend visiting a hospital or calling 911.",
     },
   ];

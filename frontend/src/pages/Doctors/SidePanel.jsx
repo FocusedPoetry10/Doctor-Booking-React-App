@@ -1,26 +1,50 @@
 import PropTypes from 'prop-types';
 import convertTime from '../../../utils/convertTime';
+import { BASE_URL, token } from "./../../config";
+import { toast } from 'react-toastify';
 
 const SidePanel = ({ doctorId = '', ticketPrice = 'N/A', timeSlots = [] }) => {
+    const bookingHandler = async () => {
+        try {
+            const res = await fetch(`${BASE_URL}/api/v1/bookings/checkout-session/${doctorId}`, {
+                method: 'POST',
+                headers: { // Corrected 'header' to 'headers'
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json', // Added for good practice
+                },
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(`${data.message || "Error occurred."} Please try again.`);
+            }
+
+            if (data.session?.url) {
+                window.location.href = data.session.url;
+            }
+        } catch (err) {
+            toast.error(err.message || "Booking failed. Try again.");
+        }
+    };
+
     return (
         <div className="shadow-panelShadow p-3 lg:p-5 rounded-md">
             <div className="flex items-center justify-between">
                 <p className="text__para mt-0 font-semibold">Ticket Price</p>
                 <span className="text-[16px] leading-7 lg:text-[22px] lg:leading-8 text-headingColor font-bold">
-                    {ticketPrice !== 'N/A' ? `Rs ${String(ticketPrice)}` : 'N/A'} {/* Fallback for ticket price */}
+                    {ticketPrice !== 'N/A' ? `Rs ${String(ticketPrice)}` : 'N/A'}
                 </span>
             </div>
 
             <div className="mt-[30px]">
-                <p className="text__para mt-0 font-semibold text-headingColor">
-                    Available Time Slots:
-                </p>
+                <p className="text__para mt-0 font-semibold text-headingColor">Available Time Slots:</p>
                 <ul className="mt-3">
                     {timeSlots?.length > 0 ? (
-                        timeSlots.map((item, slot) => (
-                            <li key={`${slot.day}-${slot.time}`} className="flex items-center justify-between mb-2">
+                        timeSlots.map((item, index) => (
+                            <li key={`${item.day}-${index}`} className="flex items-center justify-between mb-2">
                                 <p className="text-[15px] leading-6 text-textColor font-semibold">
-                                    {item.day.charAt(0).toUpperCase() + item.day.slice(1)} {/* Corrected charAt */}
+                                    {item.day.charAt(0).toUpperCase() + item.day.slice(1)}
                                 </p>
                                 <p className="text-[15px] leading-6 text-textColor font-semibold">
                                     {convertTime(item.startingTime)} - {convertTime(item.endingTime)}
@@ -33,11 +57,7 @@ const SidePanel = ({ doctorId = '', ticketPrice = 'N/A', timeSlots = [] }) => {
                 </ul>
             </div>
 
-            <button
-                className="btn px-2 w-full rounded-md"
-                onClick={() => alert("Redirecting to booking page...")}
-                aria-label="Redirect to booking page for appointment"
-            >
+            <button onClick={bookingHandler} className="btn px-2 w-full rounded-md">
                 Book Appointment
             </button>
         </div>
@@ -46,23 +66,25 @@ const SidePanel = ({ doctorId = '', ticketPrice = 'N/A', timeSlots = [] }) => {
 
 // Prop Types definition
 SidePanel.propTypes = {
-    doctorId: PropTypes.string, // Include doctorId if you are passing it
-    ticketPrice: PropTypes.oneOfType([ // Allow both string and number
+    doctorId: PropTypes.string,
+    ticketPrice: PropTypes.oneOfType([
         PropTypes.string,
-        PropTypes.number
+        PropTypes.number,
     ]),
     timeSlots: PropTypes.arrayOf(
         PropTypes.shape({
             day: PropTypes.string.isRequired,
-            time: PropTypes.string
+            startingTime: PropTypes.string.isRequired,
+            endingTime: PropTypes.string.isRequired,
         })
-    ).isRequired
+    ),
 };
 
-// Default Props for fallback
+// Default Props
 SidePanel.defaultProps = {
-    ticketPrice: 'N/A', // Default string value for ticketPrice if not passed
-    doctorId: '', // Default value for doctorId if not passed
+    ticketPrice: 'N/A',
+    doctorId: '',
+    timeSlots: [],
 };
 
 export default SidePanel;
