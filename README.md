@@ -14,6 +14,7 @@ A full-stack web application for booking doctor appointments with essential feat
 - [Architecture](#architecture)
 - [Future Enhancements](#future-enhancements)
 - [Contributors](#contributors)
+- [Future Contributors](#future-contributors)
 
 ---
 
