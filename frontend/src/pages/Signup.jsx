@@ -46,27 +46,35 @@ const Signup = () => {
     const submitHandler = async (event) => {
         event.preventDefault();
         setLoading(true);
-
-        // Add any additional validation here before sending request
+    
+        if (!formData.name || !formData.email || !formData.password || !formData.photo || !formData.gender) {
+            toast.error("Please fill out all required fields.");
+            setLoading(false);
+            return;
+        }
+    
         try {
+            console.log("Submitting form data:", formData);
             const res = await fetch(`${BASE_URL}/api/v1/auth/register`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(formData),
             });
-
-            const { message } = await res.json();
-
+    
+            const responseData = await res.json();
+            console.log("Backend response:", responseData);
+    
             if (!res.ok) {
-                throw new Error(message);
+                throw new Error(responseData.message || "Registration failed.");
             }
-
+    
             setLoading(false);
-            toast.success(message);
+            toast.success(responseData.message);
             navigate('/login');
         } catch (err) {
+            console.error("Signup error:", err);
             toast.error(err.message);
             setLoading(false);
         }
